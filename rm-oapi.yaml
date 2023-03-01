@@ -1,0 +1,90 @@
+openapi: "3.0.3"
+
+info:
+  title: Relay Monitor API
+  description: |
+    API specification for a MEV-Boost PBS relay monitoring service. This interface enables
+    interested parties such as validators running MEV-boost software
+    to get insight into the operation of the relays that they connect to.
+  version: "dev"
+  contact:
+    name: GitHub Repository
+    url: https://github.com/andriidski/rm-specs
+  license:
+    name: "CC0-1.0"
+    url: "https://creativecommons.org/publicdomain/zero/1.0/"
+
+servers:
+  - url: "{server_url}"
+    variables:
+      server_url:
+        description: "Relay Monitor URL"
+        default: "http://localhost:8080"
+
+tags:
+  - name: Faults
+    description: Set of endpoints for fault data from monitored relays.
+  - name: Scores
+    description: Set of endpoints for scoring monitored relays.
+  - name: Metrics
+    description: Set of endpoints to receive relay monitor operation data.
+
+paths:
+  # Faults
+  /monitor/v1/fault/stats:
+    $ref: "./apis/monitor/faults/fault_stats_report.yaml"
+  /monitor/v1/fault/stats/{pubkey}:
+    $ref: "./apis/monitor/faults/fault_stats.yaml"
+  /monitor/v1/fault/records:
+    $ref: "./apis/monitor/faults/fault_records_report.yaml"
+  /monitor/v1/fault/records/{pubkey}:
+    $ref: "./apis/monitor/faults/fault_records.yaml"
+  # Scores
+  /monitor/v1/scores/reputation:
+    $ref: "./apis/monitor/scores/reputation_report.yaml"
+  /monitor/v1/scores/reputation/{pubkey}:
+    $ref: "./apis/monitor/scores/reputation.yaml"
+  /monitor/v1/scores/bid_delivery:
+    $ref: "./apis/monitor/scores/bid_delivery_report.yaml"
+  /monitor/v1/scores/bid_delivery/{pubkey}:
+    $ref: "./apis/monitor/scores/bid_delivery.yaml"
+  # Metrics
+  /monitor/v1/metrics/validators/count:
+    $ref: "./apis/monitor/metrics/validators_count.yaml"
+  /monitor/v1/metrics/validators/registration_count:
+    $ref: "./apis/monitor/metrics/validators_registration_count.yaml"
+  /monitor/v1/metrics/bids/analyzed_count:
+    $ref: "./apis/monitor/metrics/bids_analyzed_count.yaml"
+  /monitor/v1/metrics/bids/analyzed_count_valid:
+    $ref: "./apis/monitor/metrics/bids_analyzed_valid_count.yaml"
+  /monitor/v1/metrics/bids/analyzed_count_fault:
+    $ref: "./apis/monitor/metrics/bids_analyzed_fault_count.yaml"
+
+components:
+  schemas:
+    Uint64:
+      $ref: "./beacon-apis/types/primitive.yaml#/Uint64"
+    Root:
+      $ref: "./beacon-apis/types/primitive.yaml#/Root"
+    Pubkey:
+      $ref: "./beacon-apis/types/primitive.yaml#/Pubkey"
+    ErrorMessage:
+      $ref: "./beacon-apis/types/http.yaml#/ErrorMessage"
+    FaultStatsReportResponse:
+      $ref: "./types/responses.yaml#/FaultStatsReportResponse"
+    FaultStatsResponse:
+      $ref: "./types/responses.yaml#/FaultStatsResponse" 
+    FaultRecordsReportResponse:
+      $ref: "./types/responses.yaml#/FaultRecordsReportResponse"
+    FaultRecordsResponse:
+      $ref: "./types/responses.yaml#/FaultRecordsResponse"
+    ScoreReportReponse:
+      $ref: "./types/responses.yaml#/ScoreReportReponse"
+    ScoreResponse:
+      $ref: "./types/responses.yaml#/ScoreResponse"
+    CountResponse:
+      $ref: "./types/responses.yaml#/CountResponse"
+
+  responses:
+    InternalError:
+      $ref: "./types/http.yaml#/InternalError"

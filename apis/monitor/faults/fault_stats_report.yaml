@@ -1,0 +1,29 @@
+get:
+  operationId: "getFaultStatsReport"
+  summary: Get fault statistics for all monitored relays.
+  description: |
+    Requests a report of fault counts for all relays that the relay monitor is actively monitoring.
+  tags:
+    - Faults
+  parameters:
+  - name: start
+    in: query
+    required: false
+    description: Starting slot to bound faults.
+    schema:
+      $ref: "../../../rm-oapi.yaml#/components/schemas/Uint64"
+  - name: end
+    in: query
+    required: false
+    description: Ending slot to bound faults.
+    schema:
+      $ref: "../../../rm-oapi.yaml#/components/schemas/Uint64"
+  responses:
+    "200":
+      description: Success response.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../rm-oapi.yaml#/components/schemas/FaultStatsReportResponse"
+    "500":
+      $ref: "../../../rm-oapi.yaml#/components/responses/InternalError"

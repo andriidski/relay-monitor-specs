@@ -1,0 +1,29 @@
+get:
+  operationId: "getBidsAnalyzedCount"
+  summary: Count total number of bids that have been analyzed by the relay monitor.
+  description: |
+    If no lookback parameters are specified, default to last 7200 slots.
+  tags:
+    - Metrics
+  parameters:
+    - name: lookbackSlots
+      in: query
+      required: false
+      description: Number of slots to lookback for count
+      schema:
+        $ref: "../../../rm-oapi.yaml#/components/schemas/Uint64"
+    - name: lookbackMinutes
+      in: query
+      required: false
+      description: Number of minutes to lookback for count
+      schema:
+        $ref: "../../../rm-oapi.yaml#/components/schemas/Uint64"
+  responses:
+    "200":
+      description: Success response.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../rm-oapi.yaml#/components/schemas/CountResponse"
+    "500":
+      $ref: "../../../rm-oapi.yaml#/components/responses/InternalError"

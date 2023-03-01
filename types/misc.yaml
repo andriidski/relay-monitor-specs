@@ -1,0 +1,14 @@
+SlotBounds:
+  type: object
+  properties:
+    start_slot:
+      $ref: "../beacon-apis/types/primitive.yaml#/Uint64"
+    end_slot:
+      $ref: "../beacon-apis/types/primitive.yaml#/Uint64"
+  
+Meta:
+  type: object
+  properties:
+    hostname:
+      type: string
+      example: builder-relay-sepolia.flashbots.net

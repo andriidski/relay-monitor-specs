@@ -1,0 +1,78 @@
+Stats:
+  type: object
+  properties:
+    total_bids:
+      $ref: "../rm-oapi.yaml#/components/schemas/Uint64"
+    consensus_invalid_bids:
+      $ref: "../rm-oapi.yaml#/components/schemas/Uint64"
+    ignored_preferences_bids:
+      $ref: "../rm-oapi.yaml#/components/schemas/Uint64"
+    payment_invalid_bids:
+      $ref: "../rm-oapi.yaml#/components/schemas/Uint64"
+    malformed_payloads:
+      $ref: "../rm-oapi.yaml#/components/schemas/Uint64" 
+    consensus_invalid_payloads:
+      $ref: "../rm-oapi.yaml#/components/schemas/Uint64" 
+    unavailable_payloads:
+      $ref: "../rm-oapi.yaml#/components/schemas/Uint64" 
+
+Record:
+  type: object
+  properties:
+    slot:
+      $ref: "../rm-oapi.yaml#/components/schemas/Uint64"
+    parent_hash:
+      $ref: "../rm-oapi.yaml#/components/schemas/Root"
+    proposer_pubkey:
+      $ref: "../rm-oapi.yaml#/components/schemas/Pubkey" 
+
+RecordArray:
+  type: array
+  items:
+    $ref: "./faults.yaml#/Record"
+
+Records:
+  type: object
+  properties:
+    total_bids:
+      $ref: "./faults.yaml#/RecordArray"
+    consensus_invalid_bids:
+      $ref: "./faults.yaml#/RecordArray"
+    ignored_preferences_bids:
+      $ref: "./faults.yaml#/RecordArray"
+    payment_invalid_bids:
+      $ref: "./faults.yaml#/RecordArray"
+    malformed_payloads:
+      $ref: "./faults.yaml#/RecordArray"
+    consensus_invalid_payloads:
+      $ref: "./faults.yaml#/RecordArray"
+    unavailable_payloads:
+      $ref: "./faults.yaml#/RecordArray"
+      
+FaultStatsReport:
+  type: object
+  properties:
+    "0x845bd072b7cd566f02faeb0a4033ce9399e42839ced64e8b2adcfc859ed1e8e1a5a293336a49feac6d9a5edb779be53a":
+      $ref: "./faults.yaml#/FaultStats"
+
+FaultStats:
+  type: object
+  properties:
+    stats:
+      $ref: "./faults.yaml#/Stats" 
+    meta:
+      $ref: "./misc.yaml#/Meta" 
+
+FaultRecords:
+  type: object
+  properties:
+    records:
+      $ref: "./faults.yaml#/Records" 
+    meta:
+      $ref: "./misc.yaml#/Meta" 
+
+FaultRecordsReport:
+  type: object
+  properties:
+    "0x845bd072b7cd566f02faeb0a4033ce9399e42839ced64e8b2adcfc859ed1e8e1a5a293336a49feac6d9a5edb779be53a":
+      $ref: "./faults.yaml#/FaultRecords"

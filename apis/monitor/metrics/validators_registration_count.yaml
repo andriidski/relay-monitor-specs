@@ -1,0 +1,14 @@
+get:
+  operationId: "getValidatorsRegistrationsCount"
+  summary: Count total number of validator registrations processed by the relay monitor.
+  tags:
+    - Metrics
+  responses:
+    "200":
+      description: Success response.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../rm-oapi.yaml#/components/schemas/CountResponse"
+    "500":
+      $ref: "../../../rm-oapi.yaml#/components/responses/InternalError"

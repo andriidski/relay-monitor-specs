@@ -1,0 +1,15 @@
+Score:
+  type: object
+  properties:
+    score:
+      type: number
+      format: float
+      example: 75.0
+    meta:
+      $ref: "./misc.yaml#/Meta" 
+
+ScoreReport:
+  type: object
+  properties:
+    "0x845bd072b7cd566f02faeb0a4033ce9399e42839ced64e8b2adcfc859ed1e8e1a5a293336a49feac6d9a5edb779be53a":
+      $ref: "./scores.yaml#/Score"

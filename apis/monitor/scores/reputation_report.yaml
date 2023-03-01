@@ -1,0 +1,29 @@
+get:
+  operationId: "getReputationScores"
+  summary: Get reputation scores for all monitored relays.
+  description: |
+    Requests a report of reputation scores for all relays that the relay monitor is actively monitoring.
+  tags:
+    - Scores
+  parameters:
+  - name: start
+    in: query
+    required: false
+    description: Starting slot to bound scoring.
+    schema:
+      $ref: "../../../rm-oapi.yaml#/components/schemas/Uint64"
+  - name: end
+    in: query
+    required: false
+    description: Ending slot to bound scoring.
+    schema:
+      $ref: "../../../rm-oapi.yaml#/components/schemas/Uint64"
+  responses:
+    "200":
+      description: Success response.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../rm-oapi.yaml#/components/schemas/ScoreReportReponse"
+    "500":
+      $ref: "../../../rm-oapi.yaml#/components/responses/InternalError"

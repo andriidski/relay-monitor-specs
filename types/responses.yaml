@@ -1,0 +1,53 @@
+FaultStatsReportResponse:
+  type: object
+  properties:
+    slot_bounds:
+      $ref: "./misc.yaml#/SlotBounds"
+    data:
+      $ref: "./faults.yaml#/FaultStatsReport"
+
+FaultStatsResponse:
+  type: object
+  properties:
+    slot_bounds:
+      $ref: "./misc.yaml#/SlotBounds" 
+    data:
+      $ref: "./faults.yaml#/FaultStats"
+
+FaultRecordsReportResponse:
+  type: object
+  properties:
+    slot_bounds:
+      $ref: "./misc.yaml#/SlotBounds"
+    data:
+      $ref: "./faults.yaml#/FaultRecordsReport"
+
+FaultRecordsResponse:
+  type: object
+  properties:
+    slot_bounds:
+      $ref: "./misc.yaml#/SlotBounds" 
+    data:
+      $ref: "./faults.yaml#/FaultRecords"
+
+ScoreReportReponse:
+  type: object
+  properties:
+    slot_bounds:
+      $ref: "./misc.yaml#/SlotBounds"
+    data:
+      $ref: "./scores.yaml#/ScoreReport"
+
+ScoreResponse:
+  type: object
+  properties:
+    slot_bounds:
+      $ref: "./misc.yaml#/SlotBounds" 
+    data:
+      $ref: "./scores.yaml#/Score"
+
+CountResponse:
+  type: object
+  properties:
+    count: 
+      $ref: "../rm-oapi.yaml#/components/schemas/Uint64" 

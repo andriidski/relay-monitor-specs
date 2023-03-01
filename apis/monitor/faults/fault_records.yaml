@@ -1,0 +1,46 @@
+get:
+  operationId: "getFaultRecords"
+  summary: Get fault records for a specific monitored relay.
+  description: |
+    Requests fault records for a specific relay that the relay monitor is actively monitoring.
+  tags:
+    - Faults
+  parameters:
+    - name: pubkey
+      in: path
+      required: true
+      description: The relay's BLS public key.
+      schema:
+        $ref: "../../../rm-oapi.yaml#/components/schemas/Pubkey"
+    - name: start
+      in: query
+      required: false
+      description: Starting slot to bound faults.
+      schema:
+        $ref: "../../../rm-oapi.yaml#/components/schemas/Uint64"
+    - name: end
+      in: query
+      required: false
+      description: Ending slot to bound faults.
+      schema:
+        $ref: "../../../rm-oapi.yaml#/components/schemas/Uint64"
+  responses:
+    "200":
+      description: Success response.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../rm-oapi.yaml#/components/schemas/FaultRecordsResponse"
+    "400":
+      description: Error response.
+      content:
+        application/json:
+          schema:
+            $ref: "../../../rm-oapi.yaml#/components/schemas/ErrorMessage"
+          examples:
+            InvalidRequest:
+              value:
+                code: 400
+                message: "hex string of odd length"
+    "500":
+      $ref: "../../../rm-oapi.yaml#/components/responses/InternalError"
