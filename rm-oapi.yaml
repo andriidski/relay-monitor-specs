@@ -1,0 +1,1849 @@
+openapi: 3.0.3
+info:
+  title: Relay Monitor API
+  description: |
+    API specification for a MEV-Boost PBS relay monitoring service. This interface enables
+    interested parties such as validators running MEV-boost software
+    to get insight into the operation of the relays that they connect to.
+  version: dev
+  contact:
+    name: GitHub Repository
+    url: 'https://github.com/andriidski/rm-specs'
+  license:
+    name: CC0-1.0
+    url: 'https://creativecommons.org/publicdomain/zero/1.0/'
+servers:
+  - url: '{server_url}'
+    variables:
+      server_url:
+        description: Relay Monitor URL
+        default: 'http://localhost:8080'
+tags:
+  - name: Faults
+    description: Set of endpoints for fault data from monitored relays.
+  - name: Scores
+    description: Set of endpoints for scoring monitored relays.
+  - name: Metrics
+    description: Set of endpoints to receive relay monitor operation data.
+paths:
+  /monitor/v1/fault/stats:
+    get:
+      operationId: getFaultStatsReport
+      summary: Get fault statistics for all monitored relays.
+      description: |
+        Requests a report of fault counts for all relays that the relay monitor is actively monitoring.
+      tags:
+        - Faults
+      parameters:
+        - name: start
+          in: query
+          required: false
+          description: Starting slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+        - name: end
+          in: query
+          required: false
+          description: Ending slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slot_bounds:
+                    type: object
+                    properties:
+                      start_slot:
+                        type: string
+                        example: '1'
+                      end_slot:
+                        type: string
+                        example: '1'
+                  data:
+                    type: object
+                    properties:
+                      '0x845bd072b7cd566f02faeb0a4033ce9399e42839ced64e8b2adcfc859ed1e8e1a5a293336a49feac6d9a5edb779be53a':
+                        type: object
+                        properties:
+                          stats:
+                            type: object
+                            properties:
+                              total_bids:
+                                type: string
+                                example: '1'
+                              consensus_invalid_bids:
+                                type: string
+                                example: '1'
+                              ignored_preferences_bids:
+                                type: string
+                                example: '1'
+                              payment_invalid_bids:
+                                type: string
+                                example: '1'
+                              malformed_payloads:
+                                type: string
+                                example: '1'
+                              consensus_invalid_payloads:
+                                type: string
+                                example: '1'
+                              unavailable_payloads:
+                                type: string
+                                example: '1'
+                          meta:
+                            type: object
+                            properties:
+                              hostname:
+                                type: string
+                                example: builder-relay-sepolia.flashbots.net
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  '/monitor/v1/fault/stats/{pubkey}':
+    get:
+      operationId: getFaultStats
+      summary: Get fault statistics for a specific monitored relay.
+      description: |
+        Requests fault counts for a specific relay that the relay monitor is actively monitoring.
+      tags:
+        - Faults
+      parameters:
+        - name: pubkey
+          in: path
+          required: true
+          description: The relay's BLS public key.
+          schema:
+            type: string
+            format: hex
+            pattern: '^0x[a-fA-F0-9]{96}$'
+            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+        - name: start
+          in: query
+          required: false
+          description: Starting slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+        - name: end
+          in: query
+          required: false
+          description: Ending slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slot_bounds:
+                    type: object
+                    properties:
+                      start_slot:
+                        type: string
+                        example: '1'
+                      end_slot:
+                        type: string
+                        example: '1'
+                  data:
+                    type: object
+                    properties:
+                      stats:
+                        type: object
+                        properties:
+                          total_bids:
+                            type: string
+                            example: '1'
+                          consensus_invalid_bids:
+                            type: string
+                            example: '1'
+                          ignored_preferences_bids:
+                            type: string
+                            example: '1'
+                          payment_invalid_bids:
+                            type: string
+                            example: '1'
+                          malformed_payloads:
+                            type: string
+                            example: '1'
+                          consensus_invalid_payloads:
+                            type: string
+                            example: '1'
+                          unavailable_payloads:
+                            type: string
+                            example: '1'
+                      meta:
+                        type: object
+                        properties:
+                          hostname:
+                            type: string
+                            example: builder-relay-sepolia.flashbots.net
+        '400':
+          description: Error response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              examples:
+                InvalidRequest:
+                  value:
+                    code: 400
+                    message: hex string of odd length
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  /monitor/v1/fault/records:
+    get:
+      operationId: getFaultRecordsReport
+      summary: Get fault records for all monitored relays.
+      description: |
+        Requests a report of fault records for all relays that the relay monitor is actively monitoring.
+      tags:
+        - Faults
+      parameters:
+        - name: start
+          in: query
+          required: false
+          description: Starting slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+        - name: end
+          in: query
+          required: false
+          description: Ending slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slot_bounds:
+                    type: object
+                    properties:
+                      start_slot:
+                        type: string
+                        example: '1'
+                      end_slot:
+                        type: string
+                        example: '1'
+                  data:
+                    type: object
+                    properties:
+                      '0x845bd072b7cd566f02faeb0a4033ce9399e42839ced64e8b2adcfc859ed1e8e1a5a293336a49feac6d9a5edb779be53a':
+                        type: object
+                        properties:
+                          records:
+                            type: object
+                            properties:
+                              total_bids:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    slot:
+                                      type: string
+                                      example: '1'
+                                    parent_hash:
+                                      type: string
+                                      format: hex
+                                      example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                      pattern: '^0x[a-fA-F0-9]{64}$'
+                                    proposer_pubkey:
+                                      type: string
+                                      format: hex
+                                      pattern: '^0x[a-fA-F0-9]{96}$'
+                                      description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                      example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                              consensus_invalid_bids:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    slot:
+                                      type: string
+                                      example: '1'
+                                    parent_hash:
+                                      type: string
+                                      format: hex
+                                      example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                      pattern: '^0x[a-fA-F0-9]{64}$'
+                                    proposer_pubkey:
+                                      type: string
+                                      format: hex
+                                      pattern: '^0x[a-fA-F0-9]{96}$'
+                                      description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                      example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                              ignored_preferences_bids:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    slot:
+                                      type: string
+                                      example: '1'
+                                    parent_hash:
+                                      type: string
+                                      format: hex
+                                      example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                      pattern: '^0x[a-fA-F0-9]{64}$'
+                                    proposer_pubkey:
+                                      type: string
+                                      format: hex
+                                      pattern: '^0x[a-fA-F0-9]{96}$'
+                                      description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                      example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                              payment_invalid_bids:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    slot:
+                                      type: string
+                                      example: '1'
+                                    parent_hash:
+                                      type: string
+                                      format: hex
+                                      example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                      pattern: '^0x[a-fA-F0-9]{64}$'
+                                    proposer_pubkey:
+                                      type: string
+                                      format: hex
+                                      pattern: '^0x[a-fA-F0-9]{96}$'
+                                      description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                      example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                              malformed_payloads:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    slot:
+                                      type: string
+                                      example: '1'
+                                    parent_hash:
+                                      type: string
+                                      format: hex
+                                      example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                      pattern: '^0x[a-fA-F0-9]{64}$'
+                                    proposer_pubkey:
+                                      type: string
+                                      format: hex
+                                      pattern: '^0x[a-fA-F0-9]{96}$'
+                                      description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                      example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                              consensus_invalid_payloads:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    slot:
+                                      type: string
+                                      example: '1'
+                                    parent_hash:
+                                      type: string
+                                      format: hex
+                                      example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                      pattern: '^0x[a-fA-F0-9]{64}$'
+                                    proposer_pubkey:
+                                      type: string
+                                      format: hex
+                                      pattern: '^0x[a-fA-F0-9]{96}$'
+                                      description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                      example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                              unavailable_payloads:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    slot:
+                                      type: string
+                                      example: '1'
+                                    parent_hash:
+                                      type: string
+                                      format: hex
+                                      example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                      pattern: '^0x[a-fA-F0-9]{64}$'
+                                    proposer_pubkey:
+                                      type: string
+                                      format: hex
+                                      pattern: '^0x[a-fA-F0-9]{96}$'
+                                      description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                      example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                          meta:
+                            type: object
+                            properties:
+                              hostname:
+                                type: string
+                                example: builder-relay-sepolia.flashbots.net
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  '/monitor/v1/fault/records/{pubkey}':
+    get:
+      operationId: getFaultRecords
+      summary: Get fault records for a specific monitored relay.
+      description: |
+        Requests fault records for a specific relay that the relay monitor is actively monitoring.
+      tags:
+        - Faults
+      parameters:
+        - name: pubkey
+          in: path
+          required: true
+          description: The relay's BLS public key.
+          schema:
+            type: string
+            format: hex
+            pattern: '^0x[a-fA-F0-9]{96}$'
+            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+        - name: start
+          in: query
+          required: false
+          description: Starting slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+        - name: end
+          in: query
+          required: false
+          description: Ending slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slot_bounds:
+                    type: object
+                    properties:
+                      start_slot:
+                        type: string
+                        example: '1'
+                      end_slot:
+                        type: string
+                        example: '1'
+                  data:
+                    type: object
+                    properties:
+                      records:
+                        type: object
+                        properties:
+                          total_bids:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                slot:
+                                  type: string
+                                  example: '1'
+                                parent_hash:
+                                  type: string
+                                  format: hex
+                                  example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                  pattern: '^0x[a-fA-F0-9]{64}$'
+                                proposer_pubkey:
+                                  type: string
+                                  format: hex
+                                  pattern: '^0x[a-fA-F0-9]{96}$'
+                                  description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                  example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                          consensus_invalid_bids:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                slot:
+                                  type: string
+                                  example: '1'
+                                parent_hash:
+                                  type: string
+                                  format: hex
+                                  example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                  pattern: '^0x[a-fA-F0-9]{64}$'
+                                proposer_pubkey:
+                                  type: string
+                                  format: hex
+                                  pattern: '^0x[a-fA-F0-9]{96}$'
+                                  description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                  example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                          ignored_preferences_bids:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                slot:
+                                  type: string
+                                  example: '1'
+                                parent_hash:
+                                  type: string
+                                  format: hex
+                                  example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                  pattern: '^0x[a-fA-F0-9]{64}$'
+                                proposer_pubkey:
+                                  type: string
+                                  format: hex
+                                  pattern: '^0x[a-fA-F0-9]{96}$'
+                                  description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                  example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                          payment_invalid_bids:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                slot:
+                                  type: string
+                                  example: '1'
+                                parent_hash:
+                                  type: string
+                                  format: hex
+                                  example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                  pattern: '^0x[a-fA-F0-9]{64}$'
+                                proposer_pubkey:
+                                  type: string
+                                  format: hex
+                                  pattern: '^0x[a-fA-F0-9]{96}$'
+                                  description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                  example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                          malformed_payloads:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                slot:
+                                  type: string
+                                  example: '1'
+                                parent_hash:
+                                  type: string
+                                  format: hex
+                                  example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                  pattern: '^0x[a-fA-F0-9]{64}$'
+                                proposer_pubkey:
+                                  type: string
+                                  format: hex
+                                  pattern: '^0x[a-fA-F0-9]{96}$'
+                                  description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                  example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                          consensus_invalid_payloads:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                slot:
+                                  type: string
+                                  example: '1'
+                                parent_hash:
+                                  type: string
+                                  format: hex
+                                  example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                  pattern: '^0x[a-fA-F0-9]{64}$'
+                                proposer_pubkey:
+                                  type: string
+                                  format: hex
+                                  pattern: '^0x[a-fA-F0-9]{96}$'
+                                  description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                  example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                          unavailable_payloads:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                slot:
+                                  type: string
+                                  example: '1'
+                                parent_hash:
+                                  type: string
+                                  format: hex
+                                  example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                                  pattern: '^0x[a-fA-F0-9]{64}$'
+                                proposer_pubkey:
+                                  type: string
+                                  format: hex
+                                  pattern: '^0x[a-fA-F0-9]{96}$'
+                                  description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                                  example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                      meta:
+                        type: object
+                        properties:
+                          hostname:
+                            type: string
+                            example: builder-relay-sepolia.flashbots.net
+        '400':
+          description: Error response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              examples:
+                InvalidRequest:
+                  value:
+                    code: 400
+                    message: hex string of odd length
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  /monitor/v1/scores/reputation:
+    get:
+      operationId: getReputationScores
+      summary: Get reputation scores for all monitored relays.
+      description: |
+        Requests a report of reputation scores for all relays that the relay monitor is actively monitoring.
+      tags:
+        - Scores
+      parameters:
+        - name: start
+          in: query
+          required: false
+          description: Starting slot to bound scoring.
+          schema:
+            type: string
+            example: '1'
+        - name: end
+          in: query
+          required: false
+          description: Ending slot to bound scoring.
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slot_bounds:
+                    type: object
+                    properties:
+                      start_slot:
+                        type: string
+                        example: '1'
+                      end_slot:
+                        type: string
+                        example: '1'
+                  data:
+                    type: object
+                    properties:
+                      '0x845bd072b7cd566f02faeb0a4033ce9399e42839ced64e8b2adcfc859ed1e8e1a5a293336a49feac6d9a5edb779be53a':
+                        type: object
+                        properties:
+                          score:
+                            type: number
+                            format: float
+                            example: 75
+                          meta:
+                            type: object
+                            properties:
+                              hostname:
+                                type: string
+                                example: builder-relay-sepolia.flashbots.net
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  '/monitor/v1/scores/reputation/{pubkey}':
+    get:
+      operationId: getReputationScore
+      summary: Get reputation score for a specific monitored relay.
+      description: |
+        Requests a reputation score for a specific relay that the relay monitor is actively monitoring.
+      tags:
+        - Scores
+      parameters:
+        - name: pubkey
+          in: path
+          required: true
+          description: The relay's BLS public key.
+          schema:
+            type: string
+            format: hex
+            pattern: '^0x[a-fA-F0-9]{96}$'
+            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+        - name: start
+          in: query
+          required: false
+          description: Starting slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+        - name: end
+          in: query
+          required: false
+          description: Ending slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slot_bounds:
+                    type: object
+                    properties:
+                      start_slot:
+                        type: string
+                        example: '1'
+                      end_slot:
+                        type: string
+                        example: '1'
+                  data:
+                    type: object
+                    properties:
+                      score:
+                        type: number
+                        format: float
+                        example: 75
+                      meta:
+                        type: object
+                        properties:
+                          hostname:
+                            type: string
+                            example: builder-relay-sepolia.flashbots.net
+        '400':
+          description: Error response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              examples:
+                InvalidRequest:
+                  value:
+                    code: 400
+                    message: hex string of odd length
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  /monitor/v1/scores/bid_delivery:
+    get:
+      operationId: getBidDeliveryScores
+      summary: Get bid delivery scores for all monitored relays.
+      description: |
+        Requests a report of bid delivery scores for all relays that the relay monitor is actively monitoring.
+      tags:
+        - Scores
+      parameters:
+        - name: start
+          in: query
+          required: false
+          description: Starting slot to bound scoring.
+          schema:
+            type: string
+            example: '1'
+        - name: end
+          in: query
+          required: false
+          description: Ending slot to bound scoring.
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slot_bounds:
+                    type: object
+                    properties:
+                      start_slot:
+                        type: string
+                        example: '1'
+                      end_slot:
+                        type: string
+                        example: '1'
+                  data:
+                    type: object
+                    properties:
+                      '0x845bd072b7cd566f02faeb0a4033ce9399e42839ced64e8b2adcfc859ed1e8e1a5a293336a49feac6d9a5edb779be53a':
+                        type: object
+                        properties:
+                          score:
+                            type: number
+                            format: float
+                            example: 75
+                          meta:
+                            type: object
+                            properties:
+                              hostname:
+                                type: string
+                                example: builder-relay-sepolia.flashbots.net
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  '/monitor/v1/scores/bid_delivery/{pubkey}':
+    get:
+      operationId: getBidDeliveryScore
+      summary: Get bid delivery score for a specific monitored relay.
+      description: |
+        Requests a bid delivery score for a specific relay that the relay monitor is actively monitoring.
+      tags:
+        - Scores
+      parameters:
+        - name: pubkey
+          in: path
+          required: true
+          description: The relay's BLS public key.
+          schema:
+            type: string
+            format: hex
+            pattern: '^0x[a-fA-F0-9]{96}$'
+            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+        - name: start
+          in: query
+          required: false
+          description: Starting slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+        - name: end
+          in: query
+          required: false
+          description: Ending slot to bound faults.
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  slot_bounds:
+                    type: object
+                    properties:
+                      start_slot:
+                        type: string
+                        example: '1'
+                      end_slot:
+                        type: string
+                        example: '1'
+                  data:
+                    type: object
+                    properties:
+                      score:
+                        type: number
+                        format: float
+                        example: 75
+                      meta:
+                        type: object
+                        properties:
+                          hostname:
+                            type: string
+                            example: builder-relay-sepolia.flashbots.net
+        '400':
+          description: Error response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              examples:
+                InvalidRequest:
+                  value:
+                    code: 400
+                    message: hex string of odd length
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  /monitor/v1/metrics/validators/count:
+    get:
+      operationId: getValidatorsCount
+      summary: Count validators that have registered with the relay monitor.
+      tags:
+        - Metrics
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: string
+                    example: '1'
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  /monitor/v1/metrics/validators/registration_count:
+    get:
+      operationId: getValidatorsRegistrationsCount
+      summary: Count total number of validator registrations processed by the relay monitor.
+      tags:
+        - Metrics
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: string
+                    example: '1'
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  /monitor/v1/metrics/bids/analyzed_count:
+    get:
+      operationId: getBidsAnalyzedCount
+      summary: Count total number of bids that have been analyzed by the relay monitor.
+      description: |
+        If no lookback parameters are specified, default to last 7200 slots.
+      tags:
+        - Metrics
+      parameters:
+        - name: lookbackSlots
+          in: query
+          required: false
+          description: Number of slots to lookback for count
+          schema:
+            type: string
+            example: '1'
+        - name: lookbackMinutes
+          in: query
+          required: false
+          description: Number of minutes to lookback for count
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: string
+                    example: '1'
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  /monitor/v1/metrics/bids/analyzed_count_valid:
+    get:
+      operationId: getBidsAnalyzedValidCount
+      summary: Count total number of valid bids that have been analyzed by the relay monitor.
+      description: |
+        If no lookback parameters are specified, default to last 7200 slots.
+      tags:
+        - Metrics
+      parameters:
+        - name: lookbackSlots
+          in: query
+          required: false
+          description: Number of slots to lookback for count
+          schema:
+            type: string
+            example: '1'
+        - name: lookbackMinutes
+          in: query
+          required: false
+          description: Number of minutes to lookback for count
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: string
+                    example: '1'
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+  /monitor/v1/metrics/bids/analyzed_count_fault:
+    get:
+      operationId: getBidsAnalyzedFaultCount
+      summary: Count total number of faulty bids that have been analyzed by the relay monitor.
+      description: |
+        If no lookback parameters are specified, default to last 7200 slots.
+      tags:
+        - Metrics
+      parameters:
+        - name: lookbackSlots
+          in: query
+          required: false
+          description: Number of slots to lookback for count
+          schema:
+            type: string
+            example: '1'
+        - name: lookbackMinutes
+          in: query
+          required: false
+          description: Number of minutes to lookback for count
+          schema:
+            type: string
+            example: '1'
+      responses:
+        '200':
+          description: Success response.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: string
+                    example: '1'
+        '500':
+          description: An internal error on the relay monitor.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    description: Either specific error code in case of invalid request or http status code
+                    type: number
+                    example: 404
+                  message:
+                    description: Message describing error
+                    type: string
+                  stacktraces:
+                    description: 'Optional stacktraces, sent when node is in debug mode'
+                    type: array
+                    items:
+                      type: string
+              example:
+                code: 500
+                message: internal server error
+components:
+  schemas:
+    Uint64:
+      type: string
+      example: '1'
+    Root:
+      type: string
+      format: hex
+      example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+      pattern: '^0x[a-fA-F0-9]{64}$'
+    Pubkey:
+      type: string
+      format: hex
+      pattern: '^0x[a-fA-F0-9]{96}$'
+      description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+      example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+    ErrorMessage:
+      type: object
+      properties:
+        code:
+          description: Either specific error code in case of invalid request or http status code
+          type: number
+          example: 404
+        message:
+          description: Message describing error
+          type: string
+        stacktraces:
+          description: 'Optional stacktraces, sent when node is in debug mode'
+          type: array
+          items:
+            type: string
+    FaultStatsReportResponse:
+      type: object
+      properties:
+        slot_bounds:
+          type: object
+          properties:
+            start_slot:
+              type: string
+              example: '1'
+            end_slot:
+              type: string
+              example: '1'
+        data:
+          type: object
+          properties:
+            '0x845bd072b7cd566f02faeb0a4033ce9399e42839ced64e8b2adcfc859ed1e8e1a5a293336a49feac6d9a5edb779be53a':
+              type: object
+              properties:
+                stats:
+                  type: object
+                  properties:
+                    total_bids:
+                      type: string
+                      example: '1'
+                    consensus_invalid_bids:
+                      type: string
+                      example: '1'
+                    ignored_preferences_bids:
+                      type: string
+                      example: '1'
+                    payment_invalid_bids:
+                      type: string
+                      example: '1'
+                    malformed_payloads:
+                      type: string
+                      example: '1'
+                    consensus_invalid_payloads:
+                      type: string
+                      example: '1'
+                    unavailable_payloads:
+                      type: string
+                      example: '1'
+                meta:
+                  type: object
+                  properties:
+                    hostname:
+                      type: string
+                      example: builder-relay-sepolia.flashbots.net
+    FaultStatsResponse:
+      type: object
+      properties:
+        slot_bounds:
+          type: object
+          properties:
+            start_slot:
+              type: string
+              example: '1'
+            end_slot:
+              type: string
+              example: '1'
+        data:
+          type: object
+          properties:
+            stats:
+              type: object
+              properties:
+                total_bids:
+                  type: string
+                  example: '1'
+                consensus_invalid_bids:
+                  type: string
+                  example: '1'
+                ignored_preferences_bids:
+                  type: string
+                  example: '1'
+                payment_invalid_bids:
+                  type: string
+                  example: '1'
+                malformed_payloads:
+                  type: string
+                  example: '1'
+                consensus_invalid_payloads:
+                  type: string
+                  example: '1'
+                unavailable_payloads:
+                  type: string
+                  example: '1'
+            meta:
+              type: object
+              properties:
+                hostname:
+                  type: string
+                  example: builder-relay-sepolia.flashbots.net
+    FaultRecordsReportResponse:
+      type: object
+      properties:
+        slot_bounds:
+          type: object
+          properties:
+            start_slot:
+              type: string
+              example: '1'
+            end_slot:
+              type: string
+              example: '1'
+        data:
+          type: object
+          properties:
+            '0x845bd072b7cd566f02faeb0a4033ce9399e42839ced64e8b2adcfc859ed1e8e1a5a293336a49feac6d9a5edb779be53a':
+              type: object
+              properties:
+                records:
+                  type: object
+                  properties:
+                    total_bids:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          slot:
+                            type: string
+                            example: '1'
+                          parent_hash:
+                            type: string
+                            format: hex
+                            example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                            pattern: '^0x[a-fA-F0-9]{64}$'
+                          proposer_pubkey:
+                            type: string
+                            format: hex
+                            pattern: '^0x[a-fA-F0-9]{96}$'
+                            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                    consensus_invalid_bids:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          slot:
+                            type: string
+                            example: '1'
+                          parent_hash:
+                            type: string
+                            format: hex
+                            example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                            pattern: '^0x[a-fA-F0-9]{64}$'
+                          proposer_pubkey:
+                            type: string
+                            format: hex
+                            pattern: '^0x[a-fA-F0-9]{96}$'
+                            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                    ignored_preferences_bids:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          slot:
+                            type: string
+                            example: '1'
+                          parent_hash:
+                            type: string
+                            format: hex
+                            example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                            pattern: '^0x[a-fA-F0-9]{64}$'
+                          proposer_pubkey:
+                            type: string
+                            format: hex
+                            pattern: '^0x[a-fA-F0-9]{96}$'
+                            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                    payment_invalid_bids:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          slot:
+                            type: string
+                            example: '1'
+                          parent_hash:
+                            type: string
+                            format: hex
+                            example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                            pattern: '^0x[a-fA-F0-9]{64}$'
+                          proposer_pubkey:
+                            type: string
+                            format: hex
+                            pattern: '^0x[a-fA-F0-9]{96}$'
+                            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                    malformed_payloads:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          slot:
+                            type: string
+                            example: '1'
+                          parent_hash:
+                            type: string
+                            format: hex
+                            example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                            pattern: '^0x[a-fA-F0-9]{64}$'
+                          proposer_pubkey:
+                            type: string
+                            format: hex
+                            pattern: '^0x[a-fA-F0-9]{96}$'
+                            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                    consensus_invalid_payloads:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          slot:
+                            type: string
+                            example: '1'
+                          parent_hash:
+                            type: string
+                            format: hex
+                            example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                            pattern: '^0x[a-fA-F0-9]{64}$'
+                          proposer_pubkey:
+                            type: string
+                            format: hex
+                            pattern: '^0x[a-fA-F0-9]{96}$'
+                            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                    unavailable_payloads:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          slot:
+                            type: string
+                            example: '1'
+                          parent_hash:
+                            type: string
+                            format: hex
+                            example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                            pattern: '^0x[a-fA-F0-9]{64}$'
+                          proposer_pubkey:
+                            type: string
+                            format: hex
+                            pattern: '^0x[a-fA-F0-9]{96}$'
+                            description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                            example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                meta:
+                  type: object
+                  properties:
+                    hostname:
+                      type: string
+                      example: builder-relay-sepolia.flashbots.net
+    FaultRecordsResponse:
+      type: object
+      properties:
+        slot_bounds:
+          type: object
+          properties:
+            start_slot:
+              type: string
+              example: '1'
+            end_slot:
+              type: string
+              example: '1'
+        data:
+          type: object
+          properties:
+            records:
+              type: object
+              properties:
+                total_bids:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slot:
+                        type: string
+                        example: '1'
+                      parent_hash:
+                        type: string
+                        format: hex
+                        example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                        pattern: '^0x[a-fA-F0-9]{64}$'
+                      proposer_pubkey:
+                        type: string
+                        format: hex
+                        pattern: '^0x[a-fA-F0-9]{96}$'
+                        description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                        example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                consensus_invalid_bids:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slot:
+                        type: string
+                        example: '1'
+                      parent_hash:
+                        type: string
+                        format: hex
+                        example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                        pattern: '^0x[a-fA-F0-9]{64}$'
+                      proposer_pubkey:
+                        type: string
+                        format: hex
+                        pattern: '^0x[a-fA-F0-9]{96}$'
+                        description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                        example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                ignored_preferences_bids:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slot:
+                        type: string
+                        example: '1'
+                      parent_hash:
+                        type: string
+                        format: hex
+                        example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                        pattern: '^0x[a-fA-F0-9]{64}$'
+                      proposer_pubkey:
+                        type: string
+                        format: hex
+                        pattern: '^0x[a-fA-F0-9]{96}$'
+                        description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                        example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                payment_invalid_bids:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slot:
+                        type: string
+                        example: '1'
+                      parent_hash:
+                        type: string
+                        format: hex
+                        example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                        pattern: '^0x[a-fA-F0-9]{64}$'
+                      proposer_pubkey:
+                        type: string
+                        format: hex
+                        pattern: '^0x[a-fA-F0-9]{96}$'
+                        description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                        example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                malformed_payloads:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slot:
+                        type: string
+                        example: '1'
+                      parent_hash:
+                        type: string
+                        format: hex
+                        example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                        pattern: '^0x[a-fA-F0-9]{64}$'
+                      proposer_pubkey:
+                        type: string
+                        format: hex
+                        pattern: '^0x[a-fA-F0-9]{96}$'
+                        description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                        example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                consensus_invalid_payloads:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slot:
+                        type: string
+                        example: '1'
+                      parent_hash:
+                        type: string
+                        format: hex
+                        example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                        pattern: '^0x[a-fA-F0-9]{64}$'
+                      proposer_pubkey:
+                        type: string
+                        format: hex
+                        pattern: '^0x[a-fA-F0-9]{96}$'
+                        description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                        example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+                unavailable_payloads:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      slot:
+                        type: string
+                        example: '1'
+                      parent_hash:
+                        type: string
+                        format: hex
+                        example: '0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2'
+                        pattern: '^0x[a-fA-F0-9]{64}$'
+                      proposer_pubkey:
+                        type: string
+                        format: hex
+                        pattern: '^0x[a-fA-F0-9]{96}$'
+                        description: 'The validator''s BLS public key, uniquely identifying them. _48-bytes, hex encoded with 0x prefix, case insensitive._'
+                        example: '0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a'
+            meta:
+              type: object
+              properties:
+                hostname:
+                  type: string
+                  example: builder-relay-sepolia.flashbots.net
+    ScoreReportReponse:
+      type: object
+      properties:
+        slot_bounds:
+          type: object
+          properties:
+            start_slot:
+              type: string
+              example: '1'
+            end_slot:
+              type: string
+              example: '1'
+        data:
+          type: object
+          properties:
+            '0x845bd072b7cd566f02faeb0a4033ce9399e42839ced64e8b2adcfc859ed1e8e1a5a293336a49feac6d9a5edb779be53a':
+              type: object
+              properties:
+                score:
+                  type: number
+                  format: float
+                  example: 75
+                meta:
+                  type: object
+                  properties:
+                    hostname:
+                      type: string
+                      example: builder-relay-sepolia.flashbots.net
+    ScoreResponse:
+      type: object
+      properties:
+        slot_bounds:
+          type: object
+          properties:
+            start_slot:
+              type: string
+              example: '1'
+            end_slot:
+              type: string
+              example: '1'
+        data:
+          type: object
+          properties:
+            score:
+              type: number
+              format: float
+              example: 75
+            meta:
+              type: object
+              properties:
+                hostname:
+                  type: string
+                  example: builder-relay-sepolia.flashbots.net
+    CountResponse:
+      type: object
+      properties:
+        count:
+          type: string
+          example: '1'
+  responses:
+    InternalError:
+      description: An internal error on the relay monitor.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                description: Either specific error code in case of invalid request or http status code
+                type: number
+                example: 404
+              message:
+                description: Message describing error
+                type: string
+              stacktraces:
+                description: 'Optional stacktraces, sent when node is in debug mode'
+                type: array
+                items:
+                  type: string
+          example:
+            code: 500
+            message: internal server error
