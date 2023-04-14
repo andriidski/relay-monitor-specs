@@ -9,7 +9,7 @@ info:
   version: "dev"
   contact:
     name: GitHub Repository
-    url: https://github.com/andriidski/rm-specs
+    url: https://github.com/andriidski/relay-monitor-specs
   license:
     name: "CC0-1.0"
     url: "https://creativecommons.org/publicdomain/zero/1.0/"
@@ -22,6 +22,8 @@ servers:
         default: "http://localhost:8080"
 
 tags:
+  - name: Transcript
+    description: Set of endpoints for providing proposer-view data to the relay monitor.
   - name: Faults
     description: Set of endpoints for fault data from monitored relays.
   - name: Scores
@@ -30,6 +32,9 @@ tags:
     description: Set of endpoints to receive relay monitor operation data.
 
 paths:
+  # Transcript
+  /monitor/v1/transcript:
+    $ref: "./apis/monitor/transcript/transcript.yaml"
   # Faults
   /monitor/v1/fault/stats:
     $ref: "./apis/monitor/faults/fault_stats_report.yaml"
@@ -73,7 +78,7 @@ components:
     FaultStatsReportResponse:
       $ref: "./types/responses.yaml#/FaultStatsReportResponse"
     FaultStatsResponse:
-      $ref: "./types/responses.yaml#/FaultStatsResponse" 
+      $ref: "./types/responses.yaml#/FaultStatsResponse"
     FaultRecordsReportResponse:
       $ref: "./types/responses.yaml#/FaultRecordsReportResponse"
     FaultRecordsResponse:
@@ -84,7 +89,25 @@ components:
       $ref: "./types/responses.yaml#/ScoreResponse"
     CountResponse:
       $ref: "./types/responses.yaml#/CountResponse"
+    Bellatrix.AuctionTranscript:
+      $ref: "./types/transcript.yaml#/Bellatrix.AuctionTranscript"
+    Capella.AuctionTranscript:
+      $ref: "./types/transcript.yaml#/Capella.AuctionTranscript"
+    Bellatrix.SignedBuilderBid:
+      $ref: "./builder-specs/types/bellatrix/bid.yaml#/Bellatrix.SignedBuilderBid"
+    Capella.SignedBuilderBid:
+      $ref: "./builder-specs/types/bellatrix/bid.yaml#/Capella.SignedBuilderBid"
+    Bellatrix.SignedBlindedBeaconBlock:
+      $ref: "./beacon-apis/types/bellatrix/block.yaml#/Bellatrix.SignedBlindedBeaconBlock"
+    Capella.SignedBlindedBeaconBlock:
+      $ref: "./beacon-apis/types/capella/block.yaml#/Capella.SignedBlindedBeaconBlock"
 
   responses:
     InternalError:
       $ref: "./types/http.yaml#/InternalError"
+
+  examples:
+    Bellatrix.AuctionTranscript:
+      $ref: "./examples/bellatrix/transcript.json"
+    Capella.AuctionTranscript:
+      $ref: "./examples/capella/transcript.json"

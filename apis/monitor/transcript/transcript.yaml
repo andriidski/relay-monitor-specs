@@ -1,0 +1,26 @@
+post:
+  operationId: "postAuctionTranscript"
+  summary: Accepts a complete transcript from a proposer to verify the proposer's leg of the auction was performed correctly.
+  description: |
+    This endpoint accepts the JSON encoding of the signed builder bid under a top-level key "bid" and the signed blinded beacon block under a top-level key "acceptance". Encodings follow the JSON definition given in the builder-specs.
+  tags:
+    - Transcript
+  requestBody:
+    description: A signed builder bid and a signed blinded beacon block.
+    required: true
+    content:
+      application/json:
+        schema:
+          oneOf:
+            - $ref: "../../../rm-oapi.yaml#/components/schemas/Bellatrix.AuctionTranscript"
+            - $ref: "../../../rm-oapi.yaml#/components/schemas/Capella.AuctionTranscript"
+        examples:
+          bellatrix:
+            $ref: "../../../rm-oapi.yaml#/components/examples/Bellatrix.AuctionTranscript"
+          capella:
+            $ref: "../../../rm-oapi.yaml#/components/examples/Capella.AuctionTranscript"
+  responses:
+    "200":
+      description: Success response.
+    "500":
+      $ref: "../../../rm-oapi.yaml#/components/responses/InternalError"
