@@ -1,0 +1,8 @@
+Capella:
+  AuctionTranscript:
+    type: object
+    properties:
+      bid:
+        $ref: "../../rm-oapi.yaml#/components/schemas/Capella.SignedBuilderBid"
+      acceptance:
+        $ref: "../../rm-oapi.yaml#/components/schemas/Capella.SignedBlindedBeaconBlock"

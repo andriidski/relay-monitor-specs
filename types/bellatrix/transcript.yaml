@@ -1,0 +1,8 @@
+Bellatrix:
+  AuctionTranscript:
+    type: object
+    properties:
+      bid:
+        $ref: "../../rm-oapi.yaml#/components/schemas/Bellatrix.SignedBuilderBid"
+      acceptance:
+        $ref: "../../rm-oapi.yaml#/components/schemas/Bellatrix.SignedBlindedBeaconBlock"

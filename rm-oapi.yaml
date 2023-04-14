@@ -90,17 +90,17 @@ components:
     CountResponse:
       $ref: "./types/responses.yaml#/CountResponse"
     Bellatrix.AuctionTranscript:
-      $ref: "./types/transcript.yaml#/Bellatrix.AuctionTranscript"
+      $ref: "./types/bellatrix/transcript.yaml#/Bellatrix/AuctionTranscript"
     Capella.AuctionTranscript:
-      $ref: "./types/transcript.yaml#/Capella.AuctionTranscript"
+      $ref: "./types/capella/transcript.yaml#/Capella/AuctionTranscript"
     Bellatrix.SignedBuilderBid:
-      $ref: "./builder-specs/types/bellatrix/bid.yaml#/Bellatrix.SignedBuilderBid"
+      $ref: "./types/builder/bid.yaml#/Bellatrix/SignedBuilderBid"
     Capella.SignedBuilderBid:
-      $ref: "./builder-specs/types/bellatrix/bid.yaml#/Capella.SignedBuilderBid"
+      $ref: "./types/builder/bid.yaml#/Capella/SignedBuilderBid"
     Bellatrix.SignedBlindedBeaconBlock:
-      $ref: "./beacon-apis/types/bellatrix/block.yaml#/Bellatrix.SignedBlindedBeaconBlock"
+      $ref: "./beacon-apis/types/bellatrix/block.yaml#/Bellatrix/SignedBlindedBeaconBlock"
     Capella.SignedBlindedBeaconBlock:
-      $ref: "./beacon-apis/types/capella/block.yaml#/Capella.SignedBlindedBeaconBlock"
+      $ref: "./beacon-apis/types/capella/block.yaml#/Capella/SignedBlindedBeaconBlock"
 
   responses:
     InternalError:

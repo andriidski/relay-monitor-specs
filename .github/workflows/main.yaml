@@ -7,11 +7,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: true
-    - uses: actions/setup-node@v2
-    - run: npm i -g @apidevtools/swagger-cli@4
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - uses: actions/setup-node@v2
+      - run: npm i -g @apidevtools/swagger-cli@4 @redocly/cli@1.0.0-beta.111
 
-    - name: Bundle spec
-      run: "swagger-cli bundle ./rm-oapi.yaml -r -t yaml -o ./deploy/rm-oapi.yaml"
+      - name: Lint spec
+        run: redocly lint ./rm-oapi.yaml
+
+      - name: Bundle spec
+        run: "swagger-cli bundle ./rm-oapi.yaml -r -t yaml -o ./deploy/rm-oapi.yaml"
